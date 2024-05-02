@@ -1,11 +1,11 @@
-import logo from '../../assets/logo6.png';
-import {Link} from 'react-router-dom';
+import logo from '../../assets/logo7.png';
+import { Link } from 'react-router-dom';
 export const NavbarComponent = () => {
     return (<>
-        <nav className="navbar navbar-expand-lg navbar-light bg-light shadow">
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow fixed-top">
             <div className="container-fluid">
-                <a className="navbar-brand" to="#">
-                    <img src={logo} alt="logo" width={50} height={50} className='d-block w-100'/>
+                <a className="navbar-brand bg-light px-2 ay-0" to="#">
+                    <img src={logo} alt="logo" width={50} height={50} className='d-block w-100' />
                 </a>
                 <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#emi_navbar" aria-controls="emi_navbar" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
@@ -20,7 +20,7 @@ export const NavbarComponent = () => {
                         </li>
                         <li className="nav-item">
                             <Link className="nav-link" to="/">Car Loan</Link>
-                        </li>   
+                        </li>
                     </ul>
                 </div>
             </div>
