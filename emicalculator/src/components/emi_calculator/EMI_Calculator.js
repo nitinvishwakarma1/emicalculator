@@ -3,7 +3,8 @@ import styles from './emiCalculator.module.css';
 import Piechart from './PieChart.js';
 import { Navigate, useNavigate } from 'react-router-dom';
 import BarChartComponent from './BarChartComponent.js';
-import LoanTable from './LoanTable';
+import html2pdf from 'html2pdf.js';
+
 
 
 export const EMI_Calculator = () => {
@@ -15,11 +16,12 @@ export const EMI_Calculator = () => {
     let [totalInterest, setTotalInterest] = useState(2729);
     let [principalPercentage, setPrincipalPercentage] = useState(97.3);
     let [interestPercentage, setInterestPercentage] = useState(2.7);
-    let [startMonth, setStartMonth] = useState("2024-05");
-    
+    let [loanStartDate, setLoanStartDate] = useState("2024-05");
+
     const handleSubmit = () => {
         let emiPerMonth = emiCalculator(personalLoanAmt, personalLoanInterest, loanTenure);
-        let totalPayment = (emiPerMonth * loanTenure).toFixed(2);
+        let totalPayment = parseFloat((emiPerMonth * loanTenure).toFixed(2));
+        // console.log("type of totalPayment ====> ",typeof totalPayment);
         let totalInterest = (totalPayment - personalLoanAmt).toFixed(2);
         setEMIPerMonth(emiPerMonth);
         setTotalPayment(totalPayment);
@@ -32,36 +34,44 @@ export const EMI_Calculator = () => {
     }
 
     const handleStartMonthChange = (event) => {
-        console.log("handleStartMonthChange ==> ",event.target.value);
-        setStartMonth(event.target.value);
+        // console.log("handleStartMonthChange ==> ", event.target.value);
+        setLoanStartDate(event.target.value);
     };
 
     const emiCalculator = (principal, rate, time) => {
         let emi;
         rate = rate / (12 * 100);
         emi = (principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1);
-        console.log("emi ---> ", emi.toFixed(2));
-        return (emi.toFixed(2));
+        // console.log("emi ---> ", emi.toFixed(2));
+        return parseFloat(emi.toFixed(2));
     }
 
     const percentageCalculator = (number) => {
         number = parseInt(number);
-        console.log("Number ===========> ", number, "    TotalPayment ==============> ", totalPayment)
+        // console.log("Number ===========> ", number, "    TotalPayment ==============> ", totalPayment)
         let numberPercentage = (number / totalPayment) * 100;
         return (numberPercentage.toFixed(2));
     }
-    console.log("principal Percentage", principalPercentage)
-    console.log("interest Percentage", interestPercentage)
+    // console.log("principal Percentage", principalPercentage);
+    // console.log("interest Percentage", interestPercentage);
 
-    console.log(typeof personalLoanAmt);
+    // console.log(typeof personalLoanAmt);
 
-    // const getDataFunction = (data) => {
-    //     console.log("data ++++ ", data);
-    //     setLoanData(data);
-    // };
+   
+
+    const generatePDF = () => {
+        const element = document.getElementById('emiCalculator');
+        const options = {
+            filename: 'emi-slip.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().from(element).set(options).save();
+    };
 
     return (<>
-        <div className={`container pt-5  ${styles.personalLoanContainer}`} >
+        <div id="emiCalculator" className={`container pt-5  ${styles.personalLoanContainer}`} >
             <h3 className='text-center fw-bold'>EMI Calculator</h3>
             <div className="row shadow pb-4">
                 <div className="col-md-6 my-3">
@@ -113,36 +123,30 @@ export const EMI_Calculator = () => {
 
             </div>
             <div className='row mt-5 p-3 justify-content-center border border-1 mx-3'>
+                    <h4 className='text-center text-light fw-bold mt-2'>Schedule showing EMI payments starting from</h4>
                 <div className='col-md-12 mx-auto mb-3 p-1  w-50'>
-                    <h5 className='text-center text-light fw-bold'>Schedule showing EMI payments starting from</h5>
                     <label htmlFor="start">Start month:</label>
                     <input
                         type="month"
                         id="start"
                         name="start"
                         min="2024-05"
-                        value={startMonth}
+                        value={loanStartDate}
                         onChange={handleStartMonthChange}
-                        className="form-control"
+                        className="form-control w-100"
                     />
                 </div>
             </div>
             <div className='row mt-5 p-3 justify-content-center border border-1 mx-3'>
-                <div className='col-md-2 mx-auto mb-3 p-5 text-dark bg-light d-flex align-items-center'>
-                    <h6 className='fw-light'>Balance in Rs &rarr; </h6>
+                <div className='col-md-12 mx-auto mb-3 p-5'>
+                    <BarChartComponent loanAmt = {personalLoanAmt} interestRate={personalLoanInterest} loanTenure={loanTenure} loanEMI={emiPerMonth} loanStartDate={loanStartDate}/>
                 </div>
-                <div className='col-md-10 mx-auto mb-3 p-5 bg-light text-dark'>
-                    <BarChartComponent />
-                    <h6 className='fw-light text-center mt-3'>Years &uarr; </h6>
+                <div className='col-md-12 mx-auto mb-3 p-5 text-center'>
+                    <h6 className='text-center'>Want to print OR share a custom link to your EMI calculation (with all your numbers pre-filled)?</h6>
+                    <button type="button" className='btn btn-md btn-primary mx3 mt-2' onClick={generatePDF}>Save</button>
+                    <button type="button" className='btn btn-md btn-primary mx-3 mt-2'>Share</button>
                 </div>
             </div>
-            {/* <div className='row mt-5 p-3 justify-content-center border border-1 mx-3'>
-                <div className='col-md-12 mx-auto mb-3 p-1  w-50'>
-                    <h5 className='text-center text-light fw-bold'>Schedule showing EMI payments starting from</h5>
-                    <LoanTable data={loanData} loanAmt = {personalLoanAmt}/>
-                </div>
-            </div> */}
-
         </div>
 
     </>);
